@@ -30,6 +30,9 @@ jobs:
       - name: Extract Flutter source archive
         run: tar -xJf weather_glass_source.tar.xz
 
+      - name: Apply Flutter stable compatibility fixes
+        run: bash ci_fixups.sh
+
       - name: Generate Android host and apply permissions
         working-directory: weather_glass_project
         run: bash tool/bootstrap_android.sh
