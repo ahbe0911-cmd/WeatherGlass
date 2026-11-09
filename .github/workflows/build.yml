@@ -48,9 +48,43 @@ jobs:
       - name: Apply Flutter stable compatibility fixes
         run: bash ci_fixups.sh
 
-      - name: Generate Android host and apply permissions
+      - name: Apply Persian branding and Jalali calendar patch
+        run: |
+          base64 --decode ci/branding-jalali-patch.b64 > /tmp/weather_glass_branding_patch.tar.xz
+          tar -xJf /tmp/weather_glass_branding_patch.tar.xz -C weather_glass_project
+          python3 weather_glass_project/tool/apply_branding_strings.py
+
+      - name: Install bundled Vazirmatn fonts
+        run: |
+          mkdir -p weather_glass_project/assets/fonts
+          cp ci/branding-assets/fonts/*.ttf weather_glass_project/assets/fonts/
+          cp ci/branding-assets/fonts/OFL.txt weather_glass_project/assets/fonts/
+
+      - name: Generate custom weather launcher artwork
+        working-directory: weather_glass_project
+        run: python3 tool/create_weather_icons.py
+
+      - name: Generate Android host and apply Persian app label
         working-directory: weather_glass_project
         run: bash tool/bootstrap_android.sh
+
+      - name: Verify Persian branding configuration
+        working-directory: weather_glass_project
+        run: |
+          grep -q 'android:label="هواشناسی"' tool/AndroidManifest.xml
+          grep -q 'shamsi_date: \^1.1.1' pubspec.yaml
+          grep -q 'family: Vazirmatn' pubspec.yaml
+          test -s assets/fonts/Vazirmatn-Regular.ttf
+          test -s assets/icon/weather_icon.png
+          test -s assets/icon/weather_icon_foreground.png
+
+      - name: Install Flutter dependencies
+        working-directory: weather_glass_project
+        run: flutter pub get
+
+      - name: Generate native Android launcher icons
+        working-directory: weather_glass_project
+        run: dart run flutter_launcher_icons
 
       - name: Upload source snapshot for validation
         if: always()
@@ -63,12 +97,9 @@ jobs:
             weather_glass_project/pubspec.yaml
             weather_glass_project/tool/**
             weather_glass_project/android/app/src/main/AndroidManifest.xml
+            weather_glass_project/android/app/src/main/res/mipmap-*/ic_launcher.png
           if-no-files-found: warn
           retention-days: 1
-
-      - name: Install dependencies
-        working-directory: weather_glass_project
-        run: flutter pub get
 
       - name: Analyze source
         working-directory: weather_glass_project
