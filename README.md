@@ -1,58 +1,96 @@
-# WeatherGlass
+# WeatherGlass 2.0
 
-A Persian RTL Flutter weather application for Android. Weather data is provided by Open-Meteo, so the app does **not** require an API key, account, GitHub Secret, or paid developer registration for eligible non-commercial use.
+A premium Persian-first Android weather application built with Flutter, Riverpod, Open-Meteo, Geolocator, SharedPreferences, Lottie, and WorkManager.
 
-## Source code
+## What's new in 2.0
 
-The complete Flutter project is stored in `weather_glass_source.tar.xz`. Extract it with:
+- Three dedicated bottom-navigation tabs: **امروز**, **هفتگی**, and **تنظیمات**.
+- Independent scroll layouts for each tab; no single endless dashboard scroll.
+- Full-screen animated backgrounds that react to weather and local time: clouds, rain, snow, fog, lightning flashes, sun glow/lens flares, and night stars.
+- Lottie weather illustrations and blurred glassmorphism cards.
+- Current humidity, wind speed, and UV index are displayed once in a compact grid.
+- Hourly precipitation probability is shown for each forecast hour; daily maximum precipitation probability is shown for each forecast day.
+- Exact values returned by Open-Meteo are retained in the UI (temperature and wind are formatted to one decimal place).
+- Persian RTL interface with Vazirmatn typography.
+- Seven-day forecast, 48-hour hourly forecast, sunrise and sunset.
+- Saved GPS coordinates, first-launch-only permission request, significant-movement location updates, offline cache, and best-effort hourly WorkManager refresh.
+- No API key, account, or GitHub Secret is required.
 
-```bash
-tar -xJf weather_glass_source.tar.xz
-cd weather_glass_project
-```
+## Weather data provider and licence
 
-The archive contains the full `lib/`, `assets/`, `test/`, `tool/`, `pubspec.yaml`, and project documentation.
+The app uses the [Open-Meteo Forecast API](https://open-meteo.com/en/docs). The request includes current, hourly, and daily variables, with automatic timezone selection, Celsius, and km/h.
+
+**Important:** Open-Meteo's free public API is limited to non-commercial use and has published fair-use limits of 10,000 calls per day, 5,000 per hour, and 600 per minute. Apps displaying ads, supporting a business, subscriptions, client work, or other commercial use require an appropriate paid plan or permission. The weather data is licensed under CC BY 4.0, and the app links to Open-Meteo attribution. Check the current [terms](https://open-meteo.com/en/terms) before publishing.
+
+Open-Meteo provides forecasts from numerical weather models; forecasts are estimates, not guaranteed measurements. Data availability and accuracy are not warranted by the provider.
 
 ## Run locally
 
-Install Flutter stable and the Android SDK, then run:
+Requirements: Flutter stable, Android SDK, and an internet connection.
 
 ```bash
-cd weather_glass_project
-bash tool/bootstrap_android.sh
 flutter pub get
+bash tool/bootstrap_android.sh
 flutter run
 ```
 
-No `--dart-define` and no API key are needed.
+No API key or `--dart-define` is required.
 
-## Build APK locally
+## Build a release APK
 
 ```bash
-cd weather_glass_project
-bash tool/bootstrap_android.sh
-flutter pub get
 flutter build apk --release
 ```
 
-APK output: `weather_glass_project/build/app/outputs/flutter-apk/app-release.apk`.
+Output:
+
+```text
+build/app/outputs/flutter-apk/app-release.apk
+```
 
 ## GitHub Actions
 
-Every push to `main` triggers `.github/workflows/main.yml`, which calls `.github/workflows/build.yml`. The workflow installs Java 17 and Flutter stable, extracts the source archive, generates Android host files, runs `flutter analyze` and `flutter test`, builds the release APK, and uploads the `weather-glass-release-apk` artifact. No GitHub Secrets are required.
+Every push to `main` triggers `.github/workflows/main.yml`, which calls `.github/workflows/build.yml`. The pipeline installs Java 17 and Flutter stable, extracts the source archive, applies the premium UI patch, runs dependency resolution, analysis and tests, builds the release APK, and uploads the artifact named `weather-glass-release-apk`.
 
-Open **Actions → Build Android APK → Artifacts** to download the APK after a successful run.
+No GitHub Actions secrets are needed.
 
-## Weather provider and license
+## Location behavior
 
-The app uses the [Open-Meteo Forecast API](https://open-meteo.com/en/docs) for current weather, hourly forecasts, daily forecasts, UV index, and sunrise/sunset data. Its free public API is restricted to non-commercial use. The published limits are fewer than 10,000 calls per day, 5,000 per hour, and 600 per minute. Apps displaying ads, offering subscriptions, promoting commercial products, or otherwise used commercially need an appropriate Open-Meteo commercial plan or permission. Weather data is licensed under CC BY 4.0; the app includes a clickable Open-Meteo attribution link. Review the current [terms](https://open-meteo.com/en/terms) before public release.
+- On first launch, the app checks GPS and requests location permission only during the initial onboarding attempt.
+- The first successful latitude/longitude and permission state are saved in SharedPreferences.
+- On later launches, the app never calls `requestPermission()`; it loads saved coordinates and silently checks the device location only if permission is already granted.
+- Saved coordinates are replaced only after movement of at least 5 km.
+- If permission is later revoked or GPS is disabled, the app continues to use saved coordinates and offers Android settings shortcuts.
+- Android does not allow an app to silently enable GPS or grant itself location permission.
 
-## Location and background refresh
+## Background refresh
 
-- The first successful onboarding requests location permission and stores latitude/longitude locally.
-- Later launches reuse saved coordinates and never call the permission request method again.
-- If location permission remains granted, the app checks for movement and updates the saved location after a move of at least 5 km.
-- If permission is denied or GPS is disabled later, saved coordinates remain usable and the app provides a shortcut to Android settings.
-- WorkManager requests an hourly background refresh, but Android may delay periodic jobs due to battery optimization, Doze mode, or network availability.
+WorkManager requests an hourly refresh using the saved coordinates. Android controls actual scheduling and may defer work due to Doze, battery optimization, or network conditions. It is best-effort, not an exact-hour guarantee.
 
-Android does not allow an app to silently turn on GPS or grant itself location permission.
+## Source layout
+
+The complete Flutter source is in `weather_glass_source.tar.xz`. The GitHub Actions workflow extracts it into `weather_glass_project/` and overlays the premium UI patch stored in `ci/premium-patch/`.
+
+The source project contains:
+
+```text
+weather_glass_project/
+├── assets/animations/
+├── lib/
+│   ├── core/
+│   ├── data/
+│   │   ├── models/
+│   │   └── services/
+│   └── presentation/
+│       ├── providers/
+│       ├── screens/
+│       │   ├── today_screen.dart
+│       │   ├── weekly_screen.dart
+│       │   ├── settings_screen.dart
+│       │   └── weather_home_screen.dart
+│       └── widgets/
+├── test/
+├── tool/
+├── pubspec.yaml
+└── analysis_options.yaml
+```
