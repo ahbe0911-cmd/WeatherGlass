@@ -2,17 +2,16 @@
 
 A Persian RTL Flutter weather application for Android. Weather data is provided by Open-Meteo, so the app does **not** require an API key, account, GitHub Secret, or paid developer registration for eligible non-commercial use.
 
-## Repository contents
+## Source code
 
-The complete Flutter project is stored as a compressed source archive in `source_parts/`. GitHub Actions reconstructs it automatically before building. To extract it locally:
+The complete Flutter project is stored in `weather_glass_source.tar.xz`. Extract it with:
 
 ```bash
-cat source_parts/part-*.b64 | base64 --decode > weather_glass_source.tar.xz
 tar -xJf weather_glass_source.tar.xz
 cd weather_glass_project
 ```
 
-You can also use the ZIP source package shared in the ChatGPT conversation.
+The archive contains the full `lib/`, `assets/`, `test/`, `tool/`, `pubspec.yaml`, and project documentation.
 
 ## Run locally
 
@@ -40,7 +39,7 @@ APK output: `weather_glass_project/build/app/outputs/flutter-apk/app-release.apk
 
 ## GitHub Actions
 
-Every push to `main` triggers `.github/workflows/main.yml`, which calls `.github/workflows/build.yml`. The workflow installs Java 17 and Flutter stable, reconstructs the source archive, generates Android host files, runs `flutter analyze` and `flutter test`, builds the release APK, and uploads the `weather-glass-release-apk` artifact. No GitHub Secrets are required.
+Every push to `main` triggers `.github/workflows/main.yml`, which calls `.github/workflows/build.yml`. The workflow installs Java 17 and Flutter stable, extracts the source archive, generates Android host files, runs `flutter analyze` and `flutter test`, builds the release APK, and uploads the `weather-glass-release-apk` artifact. No GitHub Secrets are required.
 
 Open **Actions → Build Android APK → Artifacts** to download the APK after a successful run.
 
