@@ -52,6 +52,20 @@ jobs:
         working-directory: weather_glass_project
         run: bash tool/bootstrap_android.sh
 
+      - name: Upload source snapshot for validation
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: weather-glass-source-inspection
+          path: |
+            weather_glass_project/lib/**
+            weather_glass_project/assets/**
+            weather_glass_project/pubspec.yaml
+            weather_glass_project/tool/**
+            weather_glass_project/android/app/src/main/AndroidManifest.xml
+          if-no-files-found: warn
+          retention-days: 1
+
       - name: Install dependencies
         working-directory: weather_glass_project
         run: flutter pub get
