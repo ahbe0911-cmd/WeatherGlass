@@ -40,6 +40,11 @@ jobs:
           base64 --decode ci/controller-patch.b64 > /tmp/weather_glass_controller_patch.tar.xz
           tar -xJf /tmp/weather_glass_controller_patch.tar.xz -C weather_glass_project
 
+      - name: Apply analyzer lint cleanup
+        run: |
+          base64 --decode ci/lint-patch.b64 > /tmp/weather_glass_lint_patch.tar.xz
+          tar -xJf /tmp/weather_glass_lint_patch.tar.xz -C weather_glass_project
+
       - name: Apply Flutter stable compatibility fixes
         run: bash ci_fixups.sh
 
