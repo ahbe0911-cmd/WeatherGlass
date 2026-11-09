@@ -1,0 +1,61 @@
+name: Build Android APK
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-apk:
+    name: Build release APK
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Flutter stable
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Restore Flutter source archive
+        run: |
+          cat source_parts/part-*.b64 | base64 --decode > weather_glass_source.tar.xz
+          tar -xJf weather_glass_source.tar.xz
+
+      - name: Generate Android host and apply permissions
+        working-directory: weather_glass_project
+        run: bash tool/bootstrap_android.sh
+
+      - name: Install dependencies
+        working-directory: weather_glass_project
+        run: flutter pub get
+
+      - name: Analyze source
+        working-directory: weather_glass_project
+        run: flutter analyze --no-pub
+
+      - name: Run tests
+        working-directory: weather_glass_project
+        run: flutter test --no-pub
+
+      - name: Build release APK
+        working-directory: weather_glass_project
+        run: flutter build apk --release
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: weather-glass-release-apk
+          path: weather_glass_project/build/app/outputs/flutter-apk/app-release.apk
+          if-no-files-found: error
+          retention-days: 14
