@@ -1,0 +1,13 @@
+name: Weather Glass CI/CD
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-release-apk:
+    uses: ./.github/workflows/build.yml
