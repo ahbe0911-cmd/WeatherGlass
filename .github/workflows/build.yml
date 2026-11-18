@@ -78,6 +78,9 @@ jobs:
           test -s assets/icon/weather_icon.png
           test -s assets/icon/weather_icon_foreground.png
 
+      - name: Add Meteored-inspired 14-day, radar and AQI features
+        run: python3 ci/apply_meteored_extras.py
+
       - name: Install Flutter dependencies
         working-directory: weather_glass_project
         run: flutter pub get
