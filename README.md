@@ -94,3 +94,15 @@ weather_glass_project/
 ├── pubspec.yaml
 └── analysis_options.yaml
 ```
+
+## Meteored-inspired extended weather view
+
+The original Persian WeatherGlass UI remains intact. An additional shortcut **رادار و ۱۴ روزه** opens a detailed screen that includes:
+
+- A 14-day daily forecast, high/low temperatures, wind and precipitation probability from Open-Meteo.
+- Interactive OpenStreetMap basemap with the latest accessible RainViewer precipitation overlay.
+- US AQI, PM2.5 and PM10 from Open-Meteo Air Quality.
+- Search by city, optional GPS location, and locally cached weather data.
+- Persian dates (Jalali) and Persian-first RTL labels.
+
+Implementation: `ci/meteored_details_screen.dart` is copied into the Flutter project by `ci/apply_meteored_extras.py`, which is invoked by `.github/workflows/build.yml` before dependency installation and analysis. This keeps the archived 2.0 source as a fallback. Radar coverage and data availability depend on third-party services; the app does not supply official alerts or Meteored proprietary assets. The additional providers have their own commercial-use and attribution restrictions.
